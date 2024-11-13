@@ -2,10 +2,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 let genAI;
 let model;
+let isInitialized = false;
 
 async function initializeGenerativeAI() {
     try {
-        const response = await fetch("/api/config");
+        const response = await fetch("/api/config.js");
         const data = await response.json();
 
         if (!data.apiKey) {
@@ -14,14 +15,22 @@ async function initializeGenerativeAI() {
 
         genAI = new GoogleGenerativeAI(data.apiKey);
         model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        isInitialized = true;
     } catch (error) {
         console.error("Failed to initialize GoogleGenerativeAI:", error);
+        isInitialized = false;
     }
 }
 
 async function translateToPirateSpeak() {
-    if (!model) {
+    if (!isInitialized) {
         await initializeGenerativeAI();
+    }
+
+    if (!model) {
+        document.getElementById('result').innerText = "Error: AI model is not available.";
+        return;
     }
 
     const message = document.getElementById("userMessage").value;
@@ -53,8 +62,6 @@ async function translateToPirateSpeak() {
     }
 }
 
-// Initialize genAI when the script loads
 initializeGenerativeAI();
 
-// Attach the function to the global `window` object
 window.translateToPirateSpeak = translateToPirateSpeak;
