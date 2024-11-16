@@ -6,7 +6,7 @@ let isInitialized = false;
 
 async function initializeGenerativeAI() {
     try {
-        const response = await fetch("/api/config.js");
+        const response = await fetch("/api/config");
         const data = await response.json();
 
         if (!data.apiKey) {
@@ -47,7 +47,7 @@ async function translateToPirateSpeak() {
 
         console.log("Full API Response:", result);
 
-        const pirateSpeak = result.response.text();
+        const pirateSpeak = await result.response.text();
 
         if (pirateSpeak) {
             resultElement.innerText = pirateSpeak;
